@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧬 ProteinDesign Bench | 蛋白质设计 AI 评测题库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        'primary-hover': '#1D4ED8',
+                        'primary-light': '#DBEAFE',
+                        accent: '#14B8A6',
+                    },
+                    fontFamily: {
+                        sans: ['"PingFang SC"', '"Microsoft YaHei"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+<!-- 顶部导航 -->
+<header class="bg-gradient-to-r from-primary to-indigo-700 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl">🧬</span>
+            <div>
+                <h1 class="text-xl font-bold leading-tight">ProteinDesign Bench</h1>
+                <p class="text-xs opacity-80">蛋白质设计 AI Agent 评测基准 · 题目收集与管理平台</p>
+            </div>
+        </div>
+
+        <!-- 实时看板 -->
+        <div class="hidden md:flex items-center gap-4 text-sm">
+            <div class="text-center">
+                <div class="text-2xl font-bold leading-none" id="stat-total">-</div>
+                <div class="text-[11px] opacity-80 mt-0.5">已收集</div>
+            </div>
+            <div class="w-px h-8 bg-white/30"></div>
+            <div class="text-center">
+                <div class="text-2xl font-bold leading-none" id="stat-target">1000</div>
+                <div class="text-[11px] opacity-80 mt-0.5">目标</div>
+            </div>
+            <div class="w-px h-8 bg-white/30"></div>
+            <div class="text-center">
+                <div class="text-2xl font-bold leading-none text-emerald-200" id="stat-approved">-</div>
+                <div class="text-[11px] opacity-80 mt-0.5">已审核</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold leading-none text-amber-200" id="stat-pending">-</div>
+                <div class="text-[11px] opacity-80 mt-0.5">待审核</div>
+            </div>
+        </div>
+
+        <!-- 角色切换 -->
+        <div class="flex items-center gap-2">
+            <div class="text-right hidden sm:block">
+                <div class="text-xs opacity-80">当前身份</div>
+                <div class="text-sm font-semibold" id="current-user-label">未登录</div>
+            </div>
+            <button id="btn-role-switch"
+                    class="bg-white/20 hover:bg-white/30 border border-white/30 text-white text-sm font-medium px-4 py-2 rounded-lg transition flex items-center gap-2">
+                <span id="role-badge">🙋 出题人</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- 进度条 -->
+    <div class="max-w-7xl mx-auto px-6 pb-2">
+        <div class="w-full bg-white/20 rounded-full h-1.5 overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-emerald-400 to-teal-300 h-1.5 transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </div>
+</header>
+
+<!-- 标签页导航 -->
+<nav class="bg-white border-b border-slate-200 sticky top-[88px] z-30">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="flex gap-1" id="tab-nav">
+            <button data-tab="submit" class="tab-btn">📝 提交题目</button>
+            <button data-tab="submitted" class="tab-btn">📤 已提交</button>
+            <button data-tab="reviewed" class="tab-btn">✅ 已审核题目</button>
+            <button data-tab="bank" class="tab-btn">📚 题库总览</button>
+        </div>
+    </div>
+</nav>
+
+<!-- 主体内容区 -->
+<main class="max-w-7xl mx-auto px-6 py-6">
+    <section id="tab-submit" class="tab-panel"></section>
+    <section id="tab-submitted" class="tab-panel hidden"></section>
+    <section id="tab-reviewed" class="tab-panel hidden"></section>
+    <section id="tab-bank" class="tab-panel hidden"></section>
+</main>
+
+<!-- 页脚 -->
+<footer class="mt-12 py-6 border-t border-slate-200 bg-white">
+    <div class="max-w-7xl mx-auto px-6 text-center text-xs text-slate-500">
+        🧬 ProteinDesign Bench · 蛋白质设计 AI 评测基准 · v1.0 原型
+    </div>
+</footer>
+
+<!-- 角色切换弹窗 -->
+<div id="role-modal" class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+        <h2 class="text-lg font-bold mb-1">切换身份</h2>
+        <p class="text-sm text-slate-600 mb-5">身份与个人信息会保存在本地浏览器,下次打开自动加载。</p>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1.5">身份 *</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button data-role="submitter" class="role-choice-btn">🙋 出题人</button>
+                    <button data-role="reviewer" class="role-choice-btn">✅ 审核员</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">姓名 *</label>
+                <input id="modal-name" type="text" class="form-input" placeholder="张三">
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+            <button id="modal-cancel" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium">取消</button>
+            <button id="modal-save" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast 容器 -->
+<div id="toast-container" class="fixed top-24 right-6 z-[60] space-y-2"></div>
+
+<!-- 审核抽屉 -->
+<div id="review-drawer" class="hidden fixed inset-0 z-50">
+    <div class="absolute inset-0 bg-black/50" id="review-drawer-backdrop"></div>
+    <div class="absolute right-0 top-0 h-full w-full max-w-5xl bg-white shadow-2xl overflow-y-auto" id="review-drawer-body"></div>
+</div>
+
+<!-- 题目详情弹窗 -->
+<div id="detail-modal" class="hidden fixed inset-0 z-50 items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50" id="detail-modal-backdrop"></div>
+    <div class="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" id="detail-modal-body"></div>
+</div>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
