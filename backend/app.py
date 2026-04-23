@@ -23,6 +23,7 @@ STATIC_DIR = os.path.normpath(STATIC_DIR)
 app = Flask(__name__, static_folder=None)
 CORS(app)
 init_db()
+print(f"Database backend: {'Postgres' if IS_POSTGRES else 'SQLite'}", flush=True)
 
 
 def now_iso() -> str:
@@ -393,7 +394,7 @@ def export_questions():
             _bytes_to_io(data),
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             as_attachment=True,
-            download_name=f"protein_bench_{ts}.xlsx",
+            download_name=f"cgt_bench_{ts}.xlsx",
         )
     if fmt == "json":
         data = to_json_bytes(items, role)
@@ -401,14 +402,14 @@ def export_questions():
             _bytes_to_io(data),
             mimetype="application/json",
             as_attachment=True,
-            download_name=f"protein_bench_{ts}.json",
+            download_name=f"cgt_bench_{ts}.json",
         )
     data = to_markdown_bytes(items, role)
     return send_file(
         _bytes_to_io(data),
         mimetype="text/markdown",
         as_attachment=True,
-        download_name=f"protein_bench_{ts}.md",
+        download_name=f"cgt_bench_{ts}.md",
     )
 
 

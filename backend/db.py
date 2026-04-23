@@ -7,7 +7,7 @@ from contextlib import contextmanager
 
 SQLITE_DB_PATH = os.environ.get(
     "DB_PATH",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "protein_bench.db"),
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "cgt_bench.db"),
 )
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 IS_POSTGRES = bool(DATABASE_URL)

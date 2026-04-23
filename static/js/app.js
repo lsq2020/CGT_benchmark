@@ -6,7 +6,7 @@ import {
     PRESET_REVISION_REASONS,
 } from "./constants.js";
 
-const STORAGE_KEY = "protein-bench-user";
+const STORAGE_KEY = "cgt-bench-user";
 const DEFAULT_USER = {
     role: "submitter",
     name: "",
@@ -969,7 +969,7 @@ async function exportQuestions(format) {
         const disposition = response.headers.get("content-disposition") || "";
         const match = disposition.match(/filename="?([^"]+)"?/);
         link.href = url;
-        link.download = match?.[1] || `protein_bench_export.${format}`;
+        link.download = match?.[1] || `cgt_bench_export.${format}`;
         document.body.appendChild(link);
         link.click();
         link.remove();
